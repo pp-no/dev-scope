@@ -155,6 +155,16 @@ AI関連は特に情報量が多いため、
 
 - Vercel
 
+## 環境変数
+
+YouTube Data API v3 を使う場合は、`.env.local` に次を設定します。
+
+```bash
+YOUTUBE_API_KEY=your_youtube_data_api_v3_key
+```
+
+API キーが未設定でも、開発時はローカルのフォールバックデータで画面確認できます。
+
 ---
 
 # 技術選定理由
