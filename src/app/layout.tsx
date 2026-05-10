@@ -38,8 +38,8 @@ export default function RootLayout({
           {children}
           <footer className="footer">
             <p>
-              DevScope は技術動画の整理と発見を目的にした試作版です。データは現在モックで、
-              後続で YouTube Data API v3 連携へ差し替えできます。
+              DevScope は、Webエンジニア向けの技術動画を整理して発見しやすくするためのWebアプリです。
+              YouTube Data API v3 連携を含め、開発を進めています。
             </p>
           </footer>
         </div>
