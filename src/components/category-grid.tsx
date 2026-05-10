@@ -4,6 +4,7 @@ import { categories } from "@/lib/videos";
 export function CategoryGrid() {
   return (
     <div className="grid-cards columns-3">
+      {/* カテゴリの入口は検索条件のショートカットとしてリンク化する。 */}
       {categories.map((category) => (
         <Link
           key={category.value}

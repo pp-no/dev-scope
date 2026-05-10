@@ -77,6 +77,7 @@ export const categoryResources: Record<VideoCategory, { label: string; href: str
   career: [{ label: "GitHub", href: "https://github.com" }],
 };
 
+// 開発環境や API 障害時でも画面を確認できるよう、最小限の代替データを残しておく。
 const fallbackVideos: Video[] = [
   {
     id: "dQw4w9WgXcQ",
@@ -120,6 +121,8 @@ const fallbackVideos: Video[] = [
   },
 ];
 
+// YouTube API のレスポンスはそのままだと画面側で扱いづらいため、
+// アプリ内で共通に使う最小限の Video 形へ正規化する。
 type YouTubeSearchResponse = {
   items: Array<{
     id: { kind: string; videoId?: string };
@@ -163,6 +166,7 @@ type YouTubeVideosResponse = {
 };
 
 export function formatDate(value: string) {
+  // 日付はロケール依存の表現にして、UI 側で毎回整形しない。
   return new Intl.DateTimeFormat("ja-JP", {
     year: "numeric",
     month: "2-digit",
@@ -175,10 +179,12 @@ function getApiKey() {
 }
 
 function hasApiKey() {
+  // API キーの有無で、実データ取得とフォールバックを切り替える。
   return Boolean(getApiKey());
 }
 
 function buildYouTubeUrl(path: string, params: Record<string, string | number | undefined>) {
+  // API 呼び出し先は全てこの関数に集約して、URL 生成の重複を防ぐ。
   const url = new URL(`https://www.googleapis.com/youtube/v3/${path}`);
   const apiKey = getApiKey();
 
@@ -197,6 +203,7 @@ function buildYouTubeUrl(path: string, params: Record<string, string | number | 
 
 async function fetchYouTube<T>(path: string, params: Record<string, string | number | undefined>) {
   const response = await fetch(buildYouTubeUrl(path, params), {
+    // 取得結果は短時間キャッシュして、画面遷移のたびに API を叩きすぎないようにする。
     next: { revalidate: 300 },
   });
 
@@ -208,6 +215,7 @@ async function fetchYouTube<T>(path: string, params: Record<string, string | num
 }
 
 function pickThumbnailUrl(thumbnails?: YouTubeSearchResponse["items"][number]["snippet"]["thumbnails"]) {
+  // YouTube のサムネイルは解像度ごとに候補があるので、見栄えの良いものから拾う。
   return thumbnails?.high?.url ?? thumbnails?.medium?.url ?? thumbnails?.default?.url ?? "";
 }
 
@@ -216,6 +224,7 @@ function formatDuration(duration?: string) {
     return "";
   }
 
+  // ISO 8601 形式の動画長を、画面で読める mm:ss / h:mm:ss に変換する。
   const matches = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!matches) {
     return duration;
@@ -236,6 +245,7 @@ function formatViewCount(viewCount?: string) {
     return "視聴回数非公開";
   }
 
+  // 数字はそのままだと長いので、一覧では compact 表記に丸める。
   const numeric = Number.parseInt(viewCount, 10);
   if (Number.isNaN(numeric)) {
     return `${viewCount} 回視聴`;
@@ -245,6 +255,7 @@ function formatViewCount(viewCount?: string) {
 }
 
 function truncateSummary(description: string) {
+  // 一覧カードでは本文を読みやすくするため、説明文を短く切って要点だけ表示する。
   const normalized = description.replace(/\s+/g, " ").trim();
   if (normalized.length <= 120) {
     return normalized;
@@ -254,6 +265,7 @@ function truncateSummary(description: string) {
 }
 
 function keywordsFromText(title: string, description: string, category: VideoCategory) {
+  // 検索の起点になるキーワードは、カテゴリ語と本文中の語を合わせて抽出する。
   const pool = [
     ...categoryTopics[category],
     ...title.split(/[\s、。/・-]+/),
@@ -269,6 +281,7 @@ function mapApiItemToVideo(
   item: YouTubeSearchResponse["items"][number] | YouTubeVideosResponse["items"][number],
   category: VideoCategory,
 ): Video {
+  // API ごとに形が違うので、ここでアプリ共通の Video に統一する。
   const snippet = item.snippet;
   const thumbnailUrl = pickThumbnailUrl(snippet.thumbnails);
   const title = snippet.title;
@@ -300,6 +313,7 @@ async function searchYouTubeVideos(
   maxResults = 12,
   categoryHint?: VideoCategory,
 ) {
+  // 検索は search.list で videoId を集めてから、videos.list で詳細を補う二段構成にする。
   const searchResponse = await fetchYouTube<YouTubeSearchResponse>("search", {
     part: "snippet",
     type: "video",
@@ -333,11 +347,13 @@ async function searchYouTubeVideos(
 }
 
 function dedupeVideos(videos: Video[]) {
+  // 関連動画や検索結果で同じ動画が重複しないよう、videoId で一意化する。
   return Array.from(new Map(videos.map((video) => [video.youtubeId, video])).values());
 }
 
 export async function getHomeVideos() {
   if (!hasApiKey()) {
+    // API キー未設定でも画面確認できるよう、ローカルのフォールバックデータを返す。
     return fallbackVideos;
   }
 
@@ -352,6 +368,7 @@ export async function getHomeVideos() {
 
 export async function searchVideos(params: { query?: string; category?: string }) {
   if (!hasApiKey()) {
+    // 開発環境で API が未設定でも検索画面が壊れないよう、フォールバック側で絞り込む。
     return filterFallbackVideos(params);
   }
 
@@ -409,6 +426,7 @@ export async function getRelatedVideos(video: Video) {
 }
 
 function guessCategory(title: string, description: string): VideoCategory {
+  // YouTube にはカテゴリ情報が安定して入っていないため、文脈語から大まかに分類する。
   const combined = `${title} ${description}`.toLowerCase();
 
   if (/(next\.?js|react|typescript|frontend|ui)/i.test(combined)) return "frontend";
@@ -420,6 +438,7 @@ function guessCategory(title: string, description: string): VideoCategory {
 }
 
 function filterFallbackVideos(params: { query?: string; category?: string }) {
+  // フォールバック表示でも、検索 UX を本番と同じに近づけるために同じ条件で絞り込む。
   const normalizedQuery = params.query?.trim().toLowerCase() ?? "";
   const normalizedCategory = params.category?.trim() ?? "";
 

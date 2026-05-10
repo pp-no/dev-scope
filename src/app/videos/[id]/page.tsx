@@ -9,6 +9,7 @@ type VideoPageProps = {
 };
 
 export default async function VideoDetailPage({ params }: VideoPageProps) {
+  // 動的ルートの id を使って、動画の詳細をサーバー側で解決する。
   const { id } = await params;
   const video = await getVideoById(id);
 
@@ -21,6 +22,7 @@ export default async function VideoDetailPage({ params }: VideoPageProps) {
   return (
     <main className="detail-layout">
       <section className="surface">
+        {/* 詳細ページでは動画をそのまま埋め込んで、外部サイトへ戻らず視聴できるようにする。 */}
         <iframe
           className="video-frame"
           src={`https://www.youtube.com/embed/${video.youtubeId}`}
@@ -30,6 +32,7 @@ export default async function VideoDetailPage({ params }: VideoPageProps) {
         />
 
         <div style={{ marginTop: 18 }} className="video-meta">
+          {/* 日付や再生時間のような補助情報は、タイトルの直後にまとめて置く。 */}
           <span>{video.categoryLabel}</span>
           <span>•</span>
           <span>{formatDate(video.publishedAt)}</span>
@@ -48,6 +51,7 @@ export default async function VideoDetailPage({ params }: VideoPageProps) {
               <h2>キーワード</h2>
             </div>
           </div>
+          {/* 関連検索の入口になる語を、タグとして見やすく並べる。 */}
           <div className="inline-tags">
             {video.keywords.map((keyword) => (
               <span key={keyword} className="tag">
@@ -63,6 +67,7 @@ export default async function VideoDetailPage({ params }: VideoPageProps) {
               <h2>関連リンク</h2>
             </div>
           </div>
+          {/* 公式ドキュメントやチャンネルへの導線を、視聴の邪魔をしない位置に置く。 */}
           <ul className="list">
             <li>
               <a href={video.channelUrl} target="_blank" rel="noreferrer">
@@ -87,6 +92,7 @@ export default async function VideoDetailPage({ params }: VideoPageProps) {
             <p>同カテゴリと近いキーワードの動画を表示しています。</p>
           </div>
         </div>
+        {/* 関連動画は、視聴中の文脈を切らさず次の候補へ進めるために置く。 */}
         <div className="grid-cards">
           {relatedVideos.length > 0 ? (
             relatedVideos.map((related) => <VideoCard key={related.id} video={related} />)

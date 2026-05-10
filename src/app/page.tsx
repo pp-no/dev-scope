@@ -5,6 +5,7 @@ import { VideoCard } from "@/components/video-card";
 import { getHomeVideos, popularKeywords } from "@/lib/videos";
 
 export default async function HomePage() {
+  // ホームではまず注目動画を取り、一覧の導線を作る。
   const spotlightVideos = await getHomeVideos();
   const featuredVideo = spotlightVideos[0];
 
@@ -12,6 +13,7 @@ export default async function HomePage() {
     <main>
       <section className="hero">
         <div className="hero-copy">
+          {/* ここはサービスの目的を一文で伝えるヒーロー領域。 */}
           <span className="eyebrow">Webエンジニア向け技術動画の整理・発見</span>
           <h1>見たい技術動画を、カテゴリで素早く見つける。</h1>
           <p>
@@ -22,6 +24,7 @@ export default async function HomePage() {
             <Link href="/search" className="button button-primary">
               動画を探す
             </Link>
+            {/* 注目動画は API が返した先頭の1本をそのまま詳細導線に使う。 */}
             {featuredVideo ? (
               <Link href={`/videos/${featuredVideo.youtubeId}`} className="button button-secondary">
                 注目動画を見る
@@ -36,6 +39,7 @@ export default async function HomePage() {
 
         <aside className="hero-spotlight">
           <div className="spotlight-card">
+            {/* 右側はその時点での注目コンテンツの要約を置く。 */}
             <div className="spotlight-meta">
               <span>注目カテゴリ</span>
               <span>・</span>
@@ -76,6 +80,7 @@ export default async function HomePage() {
             <p>カテゴリやキーワードで絞り込めます。</p>
           </div>
         </div>
+        {/* ホームの検索フォームは検索画面へのショートカットとして置く。 */}
         <SearchBar />
       </section>
 
@@ -86,6 +91,7 @@ export default async function HomePage() {
             <p>目的別に技術動画を追いやすくします。</p>
           </div>
         </div>
+        {/* カテゴリ別の入口を固定表示して、探索経路を分かりやすくする。 */}
         <CategoryGrid />
       </section>
 
@@ -116,6 +122,7 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="grid-cards columns-3">
+          {/* 注目動画はカードの見た目が一番伝わる場所でまとめて出す。 */}
           {spotlightVideos.map((video) => (
             <VideoCard key={video.id} video={video} />
           ))}
