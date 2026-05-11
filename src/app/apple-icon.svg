@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <!-- Dark background -->
+  <rect width="180" height="180" rx="38" fill="#0E0E13"/>
+  <!-- Outer ring -->
+  <circle cx="90" cy="90" r="52" stroke="#67E8F9" stroke-width="6" fill="none" opacity="0.55"/>
+  <!-- Inner ring -->
+  <circle cx="90" cy="90" r="28" stroke="#67E8F9" stroke-width="6" fill="none"/>
+  <!-- Crosshair ticks -->
+  <path d="M90 22v16M90 142v16M22 90h16M142 90h16" stroke="#67E8F9" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="90" cy="90" r="8" fill="#67E8F9"/>
+</svg>

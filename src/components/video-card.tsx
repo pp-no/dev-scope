@@ -1,55 +1,69 @@
 import Link from "next/link";
-import { type Video, formatDate } from "@/lib/videos";
+import { type Video } from "@/lib/videos";
 
-export function VideoCard({ video }: { video: Video }) {
+const categoryBg: Record<string, string> = {
+  frontend: "linear-gradient(135deg, #0B1B33, #1E3A8A)",
+  backend:  "linear-gradient(135deg, #0A2018, #065F46)",
+  ai:       "linear-gradient(135deg, #1A0F2E, #5B21B6)",
+  infra:    "linear-gradient(135deg, #2A1A05, #92400E)",
+  tooling:  "linear-gradient(135deg, #04222B, #155E75)",
+  career:   "linear-gradient(135deg, #2A0A12, #9F1239)",
+};
+
+function channelInitial(name: string) {
+  return name.charAt(0).toUpperCase();
+}
+
+export function VideoCard({ video, rank }: { video: Video; rank?: number }) {
   return (
-    <article className="video-card">
-      {/* サムネイルはカードの第一印象を決めるので、最上部に大きく配置する。 */}
-      <div
-        className="video-preview"
-        aria-hidden="true"
-        style={
-          video.thumbnailUrl
-            ? {
-                // サムネイルを背景画像として敷くことで、カードの縦横比を崩さずに表示する。
-                backgroundImage: `linear-gradient(135deg, rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0.2)), url(${video.thumbnailUrl})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }
-            : undefined
-        }
-      />
-      <div className="video-meta">
-        {/* メタ情報は読み飛ばしやすい順に並べて、比較しやすくする。 */}
-        <span>{video.categoryLabel}</span>
-        <span>•</span>
-        <span>{formatDate(video.publishedAt)}</span>
-        <span>•</span>
-        <span>{video.duration}</span>
+    <Link href={`/videos/${video.id}`} className="video-card">
+      {/* Thumbnail */}
+      <div className="video-card__thumb">
+        {video.thumbnailUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={video.thumbnailUrl} alt={video.title} loading="lazy" />
+        ) : (
+          <div
+            className="video-card__thumb-bg"
+            style={{ background: categoryBg[video.category] ?? categoryBg.frontend }}
+          />
+        )}
+        {rank && <span className="video-card__rank">#{rank}</span>}
+        {video.duration && <span className="video-card__duration">{video.duration}</span>}
       </div>
-      <div>
-        <strong>{video.title}</strong>
-        <p className="prose" style={{ marginTop: 8 }}>
-          {video.summary}
-        </p>
-      </div>
-      <div className="inline-tags">
-        {/* タグは4つに絞って、カードの高さが伸びすぎないようにする。 */}
-        {video.keywords.slice(0, 4).map((keyword) => (
-          <span key={keyword} className="tag">
-            {keyword}
+
+      {/* Body */}
+      <div className="video-card__body">
+        <div className="video-card__tags">
+          <span className={`cat-tag cat-tag--${video.category}`}>{video.categoryLabel}</span>
+        </div>
+
+        <p className="video-card__title">{video.title}</p>
+
+        <div className="video-card__meta">
+          <span
+            className="ch-av"
+            style={{ width: 20, height: 20, fontSize: 9 }}
+            aria-hidden="true"
+          >
+            {channelInitial(video.channelName)}
           </span>
-        ))}
+          <span className="video-card__channel">{video.channelName}</span>
+          <span className="video-card__sep" />
+          <span>{video.publishedAt ? new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(video.publishedAt)) : ""}</span>
+        </div>
+
+        {video.views && (
+          <div className="video-card__stats">
+            <span className="video-card__stat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+              </svg>
+              {video.views}
+            </span>
+          </div>
+        )}
       </div>
-      <div className="stats-row">
-        {/* チャンネル名と視聴数は、判断材料として最後にまとめる。 */}
-        <span>{video.channelName}</span>
-        <span>{video.views}</span>
-      </div>
-      {/* 詳細ページはサムネイルではなく、明示的なボタンで遷移させる。 */}
-      <Link href={`/videos/${video.id}`} className="button button-secondary" aria-label={`${video.title} を開く`}>
-        詳細を見る
-      </Link>
-    </article>
+    </Link>
   );
 }

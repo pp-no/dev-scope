@@ -1,133 +1,267 @@
 import Link from "next/link";
 import { CategoryGrid } from "@/components/category-grid";
-import { SearchBar } from "@/components/search-bar";
 import { VideoCard } from "@/components/video-card";
 import { getHomeVideos, popularKeywords } from "@/lib/videos";
 
 export default async function HomePage() {
-  // ホームではまず注目動画を取り、一覧の導線を作る。
-  const spotlightVideos = await getHomeVideos();
-  const featuredVideo = spotlightVideos[0];
+  const videos = await getHomeVideos();
+  const trending = videos.slice(0, 4);
+  const latest = videos.slice(4);
 
   return (
     <main>
-      <section className="hero">
-        <div className="hero-copy">
-          {/* ここはサービスの目的を一文で伝えるヒーロー領域。 */}
-          <span className="eyebrow">Webエンジニア向け技術動画の整理・発見</span>
-          <h1>見たい技術動画を、カテゴリで素早く見つける。</h1>
-          <p>
-            DevScope は、Next.js や React から AI 活用、インフラ、開発ツールまでを横断して、
-            技術動画を探しやすくするためのアプリです。情報の洪水の中から、今見るべきものを絞り込みます。
-          </p>
-          <div className="hero-actions">
-            <Link href="/search" className="button button-primary">
-              動画を探す
+      {/* ============= HERO ============= */}
+      <section
+        style={{
+          padding: "56px 28px 36px",
+          position: "relative",
+          maxWidth: 1280,
+          margin: "0 auto",
+          overflow: "hidden",
+        }}
+      >
+        <div className="ambient-layer" />
+        <div className="grid-layer" />
+
+        {/* Beta label */}
+        <div className="row" style={{ gap: 8, marginBottom: 18, position: "relative" }}>
+          <span className="label-mono">
+            <span className="pulse-dot" />
+            AI時代のエンジニア向け技術情報プラットフォーム
+          </span>
+        </div>
+
+        {/* Heading */}
+        <h1
+          style={{
+            fontSize: "clamp(2.4rem, 4.5vw, 3.5rem)",
+            lineHeight: 1.07,
+            letterSpacing: "-0.025em",
+            fontWeight: 600,
+            margin: "0 0 18px",
+            maxWidth: 860,
+            position: "relative",
+          }}
+        >
+          技術の流速に、
+          <br />
+          <span
+            style={{
+              background: "linear-gradient(90deg, #67E8F9 0%, #A78BFA 60%, #60A5FA 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            整理された視界
+          </span>
+          を。
+        </h1>
+
+        <p
+          style={{
+            fontSize: 15,
+            color: "var(--text-secondary)",
+            lineHeight: 1.65,
+            margin: "0 0 28px",
+            maxWidth: 580,
+            position: "relative",
+          }}
+        >
+          AI、フロントエンド、インフラ。情報が溢れる時代に「いま見るべき技術動画」だけを、カテゴリーで整理して届けます。
+        </p>
+
+        {/* Hero search */}
+        <form
+          action="/search"
+          method="get"
+          className="hero-search-wrap"
+          style={{ position: "relative" }}
+        >
+          <svg
+            width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="1.6"
+            strokeLinecap="round" strokeLinejoin="round"
+            style={{ flexShrink: 0, color: "var(--text-tertiary)" }}
+          >
+            <path d="M11 19a8 8 0 1 1 5.3-2L21 21" />
+          </svg>
+          <input
+            type="search"
+            name="q"
+            placeholder="例: Next.js キャッシュ、Claude エージェント、Kubernetes"
+            aria-label="動画検索"
+          />
+          <span className="kbd">⌘ K</span>
+          <button type="submit" className="btn btn--primary">検索</button>
+        </form>
+
+        {/* Popular keywords */}
+        <div
+          className="row"
+          style={{ gap: 8, marginTop: 22, flexWrap: "wrap", maxWidth: 780, position: "relative" }}
+        >
+          <span className="label-mono" style={{ marginRight: 2 }}>人気のキーワード</span>
+          {popularKeywords.map((k) => (
+            <Link key={k} href={`/search?q=${encodeURIComponent(k)}`} className="chip">
+              <svg
+                width="11" height="11" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" strokeWidth="1.6"
+                strokeLinecap="round" strokeLinejoin="round"
+              >
+                <path d="M5 9h14M5 15h14M10 4l-3 16M17 4l-3 16" />
+              </svg>
+              {k}
             </Link>
-            {/* 注目動画は API が返した先頭の1本をそのまま詳細導線に使う。 */}
-            {featuredVideo ? (
-              <Link href={`/videos/${featuredVideo.youtubeId}`} className="button button-secondary">
-                注目動画を見る
-              </Link>
-            ) : (
-              <span className="button button-secondary" aria-disabled="true">
-                注目動画を読み込み中
-              </span>
-            )}
-          </div>
+          ))}
         </div>
 
-        <aside className="hero-spotlight">
-          <div className="spotlight-card">
-            {/* 右側はその時点での注目コンテンツの要約を置く。 */}
-            <div className="spotlight-meta">
-              <span>注目カテゴリ</span>
-              <span>・</span>
-              <span>{featuredVideo?.categoryLabel ?? "最新動画"}</span>
+        {/* Stat strip */}
+        <div className="stat-strip" style={{ marginTop: 36, maxWidth: 1080, position: "relative" }}>
+          <div className="stat-strip__cell">
+            <div className="stat-strip__label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 18l9 5 9-5" />
+              </svg>
+              カテゴリー
             </div>
-            <h2 style={{ margin: "12px 0 8px" }}>{featuredVideo?.title ?? "YouTube API から最新の技術動画を取得します"}</h2>
-            <p className="prose">
-              {featuredVideo?.summary ??
-                "YOUTUBE_API_KEY を設定すると、YouTube Data API v3 から注目動画を取得して表示します。"}
-            </p>
+            <div className="stat-strip__value">06</div>
           </div>
-
-          <div className="kpi-grid">
-            <div className="kpi">
-              <strong>{spotlightVideos.length}</strong>
-              <span>本の注目動画</span>
+          <div className="stat-strip__cell">
+            <div className="stat-strip__label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8 5v14l11-7z" fill="currentColor" />
+              </svg>
+              インデックス済み動画
             </div>
-            <div className="kpi">
-              <strong>6</strong>
-              <span>カテゴリ</span>
-            </div>
-            <div className="kpi">
-              <strong>検索</strong>
-              <span>キーワード・カテゴリ対応</span>
-            </div>
-            <div className="kpi">
-              <strong>詳細</strong>
-              <span>埋め込みと関連リンク</span>
+            <div className="stat-strip__value">
+              18,420 <span className="stat-strip__delta">+312 today</span>
             </div>
           </div>
-        </aside>
+          <div className="stat-strip__cell">
+            <div className="stat-strip__label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3s4 4 4 8a4 4 0 1 1-8 0c0-1 1-2 1-2s-1-3 3-6z" />
+              </svg>
+              トレンドの更新
+            </div>
+            <div className="stat-strip__value">5 min</div>
+          </div>
+          <div className="stat-strip__cell">
+            <div className="stat-strip__label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM3 12h18M12 3a14 14 0 0 1 0 18A14 14 0 0 1 12 3z" />
+              </svg>
+              キュレーション
+            </div>
+            <div className="stat-strip__value">人 + AI</div>
+          </div>
+        </div>
       </section>
 
-      <section className="section surface">
-        <div className="section-head">
+      {/* ============= CATEGORIES ============= */}
+      <section className="page-section" style={{ padding: "28px 28px 8px", maxWidth: 1280, margin: "0 auto" }}>
+        <div className="section__head">
           <div>
-            <h2>動画検索</h2>
-            <p>カテゴリやキーワードで絞り込めます。</p>
+            <div className="label-mono">CATEGORIES</div>
+            <h2 className="section__title" style={{ marginTop: 6 }}>カテゴリーから探す</h2>
           </div>
+          <Link href="/search" className="section__more">
+            すべて表示
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </Link>
         </div>
-        {/* ホームの検索フォームは検索画面へのショートカットとして置く。 */}
-        <SearchBar />
-      </section>
-
-      <section className="section">
-        <div className="section-head">
-          <div>
-            <h2>カテゴリー一覧</h2>
-            <p>目的別に技術動画を追いやすくします。</p>
-          </div>
-        </div>
-        {/* カテゴリ別の入口を固定表示して、探索経路を分かりやすくする。 */}
         <CategoryGrid />
       </section>
 
-      <section className="section surface">
-        <div className="section-head">
-          <div>
-            <h2>人気キーワード</h2>
-            <p>今追うべきテーマの入口です。</p>
+      {/* ============= TRENDING ============= */}
+      {trending.length > 0 && (
+        <section className="page-section" style={{ padding: "40px 28px 8px", maxWidth: 1280, margin: "0 auto" }}>
+          <div className="section__head">
+            <div>
+              <div className="label-mono">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 3s4 4 4 8a4 4 0 1 1-8 0c0-1 1-2 1-2s-1-3 3-6z" />
+                </svg>
+                TRENDING · 24H
+              </div>
+              <h2 className="section__title" style={{ marginTop: 6 }}>いま注目されている動画</h2>
+              <p className="section__sub">再生数・ブックマークが急上昇したもの</p>
+            </div>
+            <div className="row" style={{ gap: 10 }}>
+              <div className="segctl">
+                <button className="segctl__btn is-active">24h</button>
+                <button className="segctl__btn">7日</button>
+                <button className="segctl__btn">30日</button>
+              </div>
+              <Link href="/search" className="section__more">
+                すべて表示
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </Link>
+            </div>
           </div>
-        </div>
-        <div className="pill-row">
-          {popularKeywords.map((keyword) => (
-            <Link key={keyword} href={`/search?q=${encodeURIComponent(keyword)}`} className="pill">
-              {keyword}
-            </Link>
-          ))}
-        </div>
-      </section>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: 18,
+            }}
+          >
+            {trending.map((v, i) => (
+              <VideoCard key={v.id} video={v} rank={i + 1} />
+            ))}
+          </div>
+        </section>
+      )}
 
-      <section className="section">
-        <div className="section-head">
-          <div>
-            <h2>注目動画</h2>
-            <p>API から取得した最新の技術動画を表示しています。</p>
+      {/* ============= LATEST ============= */}
+      {latest.length > 0 && (
+        <section className="page-section" style={{ padding: "40px 28px 80px", maxWidth: 1280, margin: "0 auto" }}>
+          <div className="section__head">
+            <div>
+              <div className="label-mono">LATEST</div>
+              <h2 className="section__title" style={{ marginTop: 6 }}>最新の動画</h2>
+            </div>
+            <div className="row" style={{ gap: 8 }}>
+              <button className="btn btn--ghost btn--sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18M6 12h12M9 18h6" />
+                </svg>
+                並び替え: 新着順
+              </button>
+            </div>
           </div>
-          <Link href="/search" className="nav-link">
-            すべて見る
-          </Link>
-        </div>
-        <div className="grid-cards columns-3">
-          {/* 注目動画はカードの見た目が一番伝わる場所でまとめて出す。 */}
-          {spotlightVideos.map((video) => (
-            <VideoCard key={video.id} video={video} />
-          ))}
-        </div>
-      </section>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: 18,
+            }}
+          >
+            {latest.map((v) => (
+              <VideoCard key={v.id} video={v} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ============= EMPTY STATE ============= */}
+      {videos.length === 0 && (
+        <section className="page-section" style={{ padding: "40px 28px 80px", maxWidth: 1280, margin: "0 auto" }}>
+          <div className="empty-state">
+            <p style={{ margin: 0 }}>
+              動画が見つかりませんでした。<br />
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                YOUTUBE_API_KEY を設定すると実際の技術動画が表示されます。
+              </span>
+            </p>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
