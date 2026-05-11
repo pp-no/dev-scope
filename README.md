@@ -1,4 +1,4 @@
-# DevScope（開発中）
+# DevScope
 
 Webエンジニア向けの技術系YouTube動画を、カテゴリ別に整理して探せるWebアプリです。
 
