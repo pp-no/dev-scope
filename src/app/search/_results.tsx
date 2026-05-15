@@ -44,84 +44,29 @@ export async function SearchResults({ query, category, published, duration, curr
           margin: "6px 0 4px",
         }}
       >
-        {query ? (
+        {query && activeCategory ? (
+          <>
+            「<span style={{ color: "var(--cyan-2)" }}>{query}</span>」の検索結果 —{" "}
+            {activeCategory.label}
+          </>
+        ) : query ? (
           <>
             「<span style={{ color: "var(--cyan-2)" }}>{query}</span>」の検索結果
           </>
         ) : activeCategory ? (
-          <>{activeCategory.label}の動画</>
+          <>{activeCategory.label}の検索結果</>
         ) : (
-          "技術動画を探す"
+          "技術動画の検索結果"
         )}
       </h1>
 
-      {/* 件数と AI 要約中ラベル */}
+      {/* 件数 */}
       <div
         className="row"
         style={{ color: "var(--text-tertiary)", fontSize: 13, gap: 10, marginBottom: 22 }}
       >
         <span className="mono">{results.length} 件</span>
-        {query && (
-          <>
-            <span
-              style={{ width: 3, height: 3, background: "var(--text-muted)", borderRadius: 999 }}
-            />
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 3l1.8 4.4L18 9l-4.2 1.6L12 15l-1.8-4.4L6 9l4.2-1.6zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z" />
-              </svg>
-              AI が関連動画を要約中
-            </span>
-          </>
-        )}
       </div>
-
-      {/* AI サマリーカード（キーワード検索かつ結果あり の場合のみ表示） */}
-      {query && results.length > 0 && (
-        <div
-          className="card card--padded"
-          style={{
-            marginBottom: 24,
-            background: "linear-gradient(180deg, rgba(34,211,238,0.04), transparent)",
-            borderColor: "rgba(34,211,238,0.18)",
-          }}
-        >
-          <div className="row" style={{ gap: 8, marginBottom: 8 }}>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--cyan-2)"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 3l1.8 4.4L18 9l-4.2 1.6L12 15l-1.8-4.4L6 9l4.2-1.6zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z" />
-            </svg>
-            <span className="label-mono" style={{ color: "var(--cyan-2)" }}>
-              AI SUMMARY
-            </span>
-            <span className="kbd" style={{ marginLeft: "auto" }}>
-              Beta
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.7, color: "var(--text-secondary)" }}>
-            「{query}」に関連する動画が{" "}
-            <span style={{ color: "var(--text-primary)" }}>{results.length} 件</span>{" "}
-            見つかりました。最新の技術トレンドや実践的な解説動画を中心に整理しています。
-          </p>
-        </div>
-      )}
 
       {/* ツールバー: 適用中フィルターの chip + 並び替え */}
       <div className="row" style={{ justifyContent: "space-between", marginBottom: 18 }}>

@@ -340,20 +340,30 @@ function buildYouTubeUrl(path: string, params: Record<string, string | number | 
 
 /**
  * YouTube API にリクエストを送り、JSON レスポンスを返す
+ * 失敗時は throw せず null を返す（呼び出し側でフォールバックへ切り替える）
  * next.revalidate: 300 により 5 分間のサーバーサイドキャッシュが有効
  * @param path - API パス（"search"、"videos" など）
  * @param params - クエリパラメータのオブジェクト
  */
-async function fetchYouTube<T>(path: string, params: Record<string, string | number | undefined>) {
-  const response = await fetch(buildYouTubeUrl(path, params), {
-    next: { revalidate: 300 },
-  });
+async function fetchYouTube<T>(
+  path: string,
+  params: Record<string, string | number | undefined>
+): Promise<T | null> {
+  try {
+    const response = await fetch(buildYouTubeUrl(path, params), {
+      next: { revalidate: 300 },
+    });
 
-  if (!response.ok) {
-    throw new Error(`YouTube API request failed: ${response.status}`);
+    if (!response.ok) {
+      console.warn(`YouTube API request failed: ${response.status}`);
+      return null;
+    }
+
+    return (await response.json()) as T;
+  } catch (err) {
+    console.warn("YouTube API fetch error:", err);
+    return null;
   }
-
-  return (await response.json()) as T;
 }
 
 /**
@@ -529,6 +539,9 @@ async function searchYouTubeVideos(
     videoDuration,
   });
 
+  // API 失敗時は null を返してフォールバックへ（空配列は「検索結果 0 件」と区別する）
+  if (!searchResponse) return null;
+
   const videoIds = searchResponse.items
     .map((item) => item.id.videoId)
     .filter((value): value is string => Boolean(value));
@@ -541,6 +554,8 @@ async function searchYouTubeVideos(
     part: "snippet,contentDetails,statistics",
     id: videoIds.join(","),
   });
+
+  if (!videosResponse) return null;
 
   const videosById = new Map(videosResponse.items.map((item) => [item.id, item]));
 
@@ -581,7 +596,7 @@ export async function getHomeVideos(published?: string) {
       undefined,
       publishedAfter
     );
-    return videos.length > 0 ? videos : fallbackVideos;
+    return videos && videos.length > 0 ? videos : fallbackVideos;
   } catch (error) {
     console.error("Failed to load home videos from YouTube API", error);
     return fallbackVideos;
@@ -619,13 +634,15 @@ export async function searchVideos(params: {
       ? params.duration
       : undefined;
   try {
-    return await searchYouTubeVideos(
+    const videos = await searchYouTubeVideos(
       searchQuery,
       12,
       normalizedCategory,
       publishedAfter,
       videoDuration
     );
+    // null は API 失敗を意味するのでフォールバックへ切り替える
+    return videos ?? filterFallbackVideos(params);
   } catch (error) {
     console.error("Failed to search YouTube videos", error);
     return filterFallbackVideos(params);
@@ -646,6 +663,8 @@ export async function getVideoById(id: string) {
       part: "snippet,contentDetails,statistics",
       id,
     });
+
+    if (!response) return fallbackVideos.find((v) => v.youtubeId === id || v.id === id);
 
     const item = response.items[0];
     if (!item) {
@@ -678,6 +697,9 @@ export async function getRelatedVideos(video: Video) {
       8,
       video.category
     );
+    if (!searchResults) {
+      return fallbackVideos.filter((c) => c.youtubeId !== video.youtubeId).slice(0, 3);
+    }
     return dedupeVideos(
       searchResults.filter((candidate) => candidate.youtubeId !== video.youtubeId)
     ).slice(0, 3);

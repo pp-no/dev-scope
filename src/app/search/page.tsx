@@ -93,8 +93,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="sidebar__group">
           <div className="sidebar__group-label">カテゴリー</div>
           <Link
-            href={buildUrl(current, { category: "" })}
-            className={`sidebar__item ${!category ? "is-active" : ""}`}
+            href="/search"
+            className={`sidebar__item ${!query && !category && !published && !duration ? "is-active" : ""}`}
           >
             <span className="cat-dot" style={{ background: "var(--text-primary)" }} />
             すべて
