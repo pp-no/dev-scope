@@ -1,3 +1,9 @@
+/**
+ * 検索フォームコンポーネント
+ * GET 送信を使うことで検索条件が URL に反映され、結果を共有しやすい
+ * @param defaultValue - 初期表示するキーワード（検索結果ページで現在の q を引き継ぐ際に使用）
+ * @param action - フォームの送信先パス（デフォルト: "/search"）
+ */
 export function SearchBar({
   defaultValue,
   action = "/search",
@@ -7,7 +13,6 @@ export function SearchBar({
 }) {
   return (
     <>
-      {/* GET 送信にすることで、検索結果を URL で共有しやすくする。 */}
       <form action={action} method="get" className="search-bar">
         <input
           className="search-input"

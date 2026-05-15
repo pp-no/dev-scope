@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { categories } from "@/lib/videos";
 
+/** カテゴリ別の SVG アイコン定義（パスデータとアクセントカラー） */
 const categoryIcons: Record<string, { path: string; color: string }> = {
   frontend: {
     color: "var(--c-frontend)",
@@ -28,22 +29,29 @@ const categoryIcons: Record<string, { path: string; color: string }> = {
   },
 };
 
+/**
+ * トップページのカテゴリ入口グリッドを表示するコンポーネント
+ * 各カードをクリックすると `/search?category=<値>` に遷移する
+ * カテゴリの追加・変更は `src/lib/videos.ts` の `categories` 配列と
+ * このファイルの `categoryIcons` を合わせて修正する
+ */
 export function CategoryGrid() {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 14 }}>
       {categories.map((cat) => {
         const icon = categoryIcons[cat.value];
         return (
-          <Link
-            key={cat.value}
-            href={`/search?category=${cat.value}`}
-            className="cat-card"
-          >
+          <Link key={cat.value} href={`/search?category=${cat.value}`} className="cat-card">
             <div className="cat-card__icon" style={{ color: icon?.color }}>
               <svg
-                width="16" height="16" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor"
-                strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <path d={icon?.path ?? ""} />
               </svg>
@@ -52,6 +60,7 @@ export function CategoryGrid() {
               <div className="cat-card__name">{cat.label}</div>
               <div className="cat-card__desc">{cat.description}</div>
             </div>
+            {/* ホバー時に光る背景エフェクト */}
             <div className="cat-card__glow" style={{ background: icon?.color }} />
           </Link>
         );

@@ -3,8 +3,25 @@ import { CategoryGrid } from "@/components/category-grid";
 import { VideoCard } from "@/components/video-card";
 import { getHomeVideos, popularKeywords } from "@/lib/videos";
 
-export default async function HomePage() {
-  const videos = await getHomeVideos();
+const periodOptions = [
+  { value: "day", label: "24h" },
+  { value: "week", label: "7日" },
+  { value: "month", label: "30日" },
+] as const;
+
+const periodTrendingLabel: Record<string, string> = {
+  day: "TRENDING · 24H",
+  week: "TRENDING · 7D",
+  month: "TRENDING · 30D",
+};
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ period?: string }>;
+}) {
+  const { period = "day" } = (await searchParams) ?? {};
+  const videos = await getHomeVideos(period);
   const trending = videos.slice(0, 4);
   const latest = videos.slice(4);
 
@@ -79,9 +96,14 @@ export default async function HomePage() {
           style={{ position: "relative" }}
         >
           <svg
-            width="18" height="18" viewBox="0 0 24 24"
-            fill="none" stroke="currentColor" strokeWidth="1.6"
-            strokeLinecap="round" strokeLinejoin="round"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             style={{ flexShrink: 0, color: "var(--text-tertiary)" }}
           >
             <path d="M11 19a8 8 0 1 1 5.3-2L21 21" />
@@ -93,7 +115,9 @@ export default async function HomePage() {
             aria-label="動画検索"
           />
           <span className="kbd">⌘ K</span>
-          <button type="submit" className="btn btn--primary">検索</button>
+          <button type="submit" className="btn btn--primary">
+            検索
+          </button>
         </form>
 
         {/* Popular keywords */}
@@ -101,13 +125,20 @@ export default async function HomePage() {
           className="row"
           style={{ gap: 8, marginTop: 22, flexWrap: "wrap", maxWidth: 780, position: "relative" }}
         >
-          <span className="label-mono" style={{ marginRight: 2 }}>人気のキーワード</span>
+          <span className="label-mono" style={{ marginRight: 2 }}>
+            人気のキーワード
+          </span>
           {popularKeywords.map((k) => (
             <Link key={k} href={`/search?q=${encodeURIComponent(k)}`} className="chip">
               <svg
-                width="11" height="11" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="1.6"
-                strokeLinecap="round" strokeLinejoin="round"
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 <path d="M5 9h14M5 15h14M10 4l-3 16M17 4l-3 16" />
               </svg>
@@ -120,7 +151,16 @@ export default async function HomePage() {
         <div className="stat-strip" style={{ marginTop: 36, maxWidth: 1080, position: "relative" }}>
           <div className="stat-strip__cell">
             <div className="stat-strip__label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 18l9 5 9-5" />
               </svg>
               カテゴリー
@@ -129,7 +169,16 @@ export default async function HomePage() {
           </div>
           <div className="stat-strip__cell">
             <div className="stat-strip__label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M8 5v14l11-7z" fill="currentColor" />
               </svg>
               インデックス済み動画
@@ -140,7 +189,16 @@ export default async function HomePage() {
           </div>
           <div className="stat-strip__cell">
             <div className="stat-strip__label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 3s4 4 4 8a4 4 0 1 1-8 0c0-1 1-2 1-2s-1-3 3-6z" />
               </svg>
               トレンドの更新
@@ -149,7 +207,16 @@ export default async function HomePage() {
           </div>
           <div className="stat-strip__cell">
             <div className="stat-strip__label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM3 12h18M12 3a14 14 0 0 1 0 18A14 14 0 0 1 12 3z" />
               </svg>
               キュレーション
@@ -160,15 +227,29 @@ export default async function HomePage() {
       </section>
 
       {/* ============= CATEGORIES ============= */}
-      <section className="page-section" style={{ padding: "28px 28px 8px", maxWidth: 1280, margin: "0 auto" }}>
+      <section
+        className="page-section"
+        style={{ padding: "28px 28px 8px", maxWidth: 1280, margin: "0 auto" }}
+      >
         <div className="section__head">
           <div>
             <div className="label-mono">CATEGORIES</div>
-            <h2 className="section__title" style={{ marginTop: 6 }}>カテゴリーから探す</h2>
+            <h2 className="section__title" style={{ marginTop: 6 }}>
+              カテゴリーから探す
+            </h2>
           </div>
           <Link href="/search" className="section__more">
             すべて表示
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M9 6l6 6-6 6" />
             </svg>
           </Link>
@@ -178,27 +259,56 @@ export default async function HomePage() {
 
       {/* ============= TRENDING ============= */}
       {trending.length > 0 && (
-        <section className="page-section" style={{ padding: "40px 28px 8px", maxWidth: 1280, margin: "0 auto" }}>
+        <section
+          className="page-section"
+          style={{ padding: "40px 28px 8px", maxWidth: 1280, margin: "0 auto" }}
+        >
           <div className="section__head">
             <div>
               <div className="label-mono">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 3s4 4 4 8a4 4 0 1 1-8 0c0-1 1-2 1-2s-1-3 3-6z" />
                 </svg>
-                TRENDING · 24H
+                {periodTrendingLabel[period] ?? "TRENDING · 24H"}
               </div>
-              <h2 className="section__title" style={{ marginTop: 6 }}>いま注目されている動画</h2>
+              <h2 className="section__title" style={{ marginTop: 6 }}>
+                いま注目されている動画
+              </h2>
               <p className="section__sub">再生数・ブックマークが急上昇したもの</p>
             </div>
             <div className="row" style={{ gap: 10 }}>
               <div className="segctl">
-                <button className="segctl__btn is-active">24h</button>
-                <button className="segctl__btn">7日</button>
-                <button className="segctl__btn">30日</button>
+                {periodOptions.map(({ value, label }) => (
+                  <Link
+                    key={value}
+                    href={`/?period=${value}`}
+                    className={`segctl__btn ${period === value ? "is-active" : ""}`}
+                  >
+                    {label}
+                  </Link>
+                ))}
               </div>
               <Link href="/search" className="section__more">
                 すべて表示
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M9 6l6 6-6 6" />
                 </svg>
               </Link>
@@ -220,15 +330,29 @@ export default async function HomePage() {
 
       {/* ============= LATEST ============= */}
       {latest.length > 0 && (
-        <section className="page-section" style={{ padding: "40px 28px 80px", maxWidth: 1280, margin: "0 auto" }}>
+        <section
+          className="page-section"
+          style={{ padding: "40px 28px 80px", maxWidth: 1280, margin: "0 auto" }}
+        >
           <div className="section__head">
             <div>
               <div className="label-mono">LATEST</div>
-              <h2 className="section__title" style={{ marginTop: 6 }}>最新の動画</h2>
+              <h2 className="section__title" style={{ marginTop: 6 }}>
+                最新の動画
+              </h2>
             </div>
             <div className="row" style={{ gap: 8 }}>
               <button className="btn btn--ghost btn--sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M3 6h18M6 12h12M9 18h6" />
                 </svg>
                 並び替え: 新着順
@@ -251,10 +375,14 @@ export default async function HomePage() {
 
       {/* ============= EMPTY STATE ============= */}
       {videos.length === 0 && (
-        <section className="page-section" style={{ padding: "40px 28px 80px", maxWidth: 1280, margin: "0 auto" }}>
+        <section
+          className="page-section"
+          style={{ padding: "40px 28px 80px", maxWidth: 1280, margin: "0 auto" }}
+        >
           <div className="empty-state">
             <p style={{ margin: 0 }}>
-              動画が見つかりませんでした。<br />
+              動画が見つかりませんでした。
+              <br />
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
                 YOUTUBE_API_KEY を設定すると実際の技術動画が表示されます。
               </span>
