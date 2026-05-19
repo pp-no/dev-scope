@@ -18,9 +18,7 @@
     "jsx": "preserve",
 
     "incremental": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "@/*": [
